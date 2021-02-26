@@ -15,7 +15,10 @@ def home():
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  c = [next(co for co in post if co.id ==id)for id in com]
+  if post is None:
+    c=[]
+  else:
+    c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
   list1 = []
   postLike = db.session.query(PostLike.post_id,func.count(1)).group_by(PostLike.post_id).order_by(func.count(1).desc())
@@ -52,7 +55,10 @@ def popular():
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  c = [next(co for co in post if co.id ==id)for id in com]
+  if post is None:
+    c=[]
+  else:
+    c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
   list1 = []
   postLike = db.session.query(PostLike.post_id,func.count(1)).group_by(PostLike.post_id).order_by(func.count(1).desc())
@@ -71,7 +77,10 @@ def newest():
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  c = [next(co for co in post if co.id ==id)for id in com]
+  if post is None:
+    c=[]
+  else:
+    c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
   posts=Post.query.order_by(Post.date.desc()).limit(10).all()
   postlist = postcount(posts)
