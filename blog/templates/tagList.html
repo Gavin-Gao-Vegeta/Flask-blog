@@ -6,7 +6,7 @@
   <div class="blog-list-content">
     <p>{{post.user.username}}</p>
     <a class="home_a" href="{{ url_for('post', post_id=post.id) }}">
-      <h2>{{ post.title }}</h2>
+      <h2 id="home-title">{{ post.title }}</h2>
     </a>
     <small>Date:{{ post.date }}</small>&nbsp<small>Like:{{post.like}}</small>&nbsp<small>Comment:{{post.comment}}</small>
   </div>

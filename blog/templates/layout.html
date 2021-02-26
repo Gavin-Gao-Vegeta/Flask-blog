@@ -99,9 +99,9 @@ filename='style.css') }}">
         <div id="recently-discuss">
           <div class="blog-list">
             <div class="blog-list-content">
-              <p>{{discuss.title}}</p>
+              <p class="search-content">{{discuss.title}}</p>
               <a class="home_a" href="{{ url_for('post', post_id=discuss.id) }}">
-                <p>{{ discuss.content }}</p>
+                <p class="search-content">{{ discuss.content }}</p>
               </a>
               <small>Like:{{discuss.like}}</small>&nbsp<small>Comment:{{discuss.comment}}</small>
             </div>
