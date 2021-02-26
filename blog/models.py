@@ -58,14 +58,14 @@ class Comment(db.Model):
 
 class PostLike(db.Model):
   post_id = db.Column(db.Integer,primary_key = True)
-  user_id = db.Column(db.Integer,nullable=False)
+  user_id = db.Column(db.Integer,primary_key = True)
 
   def __repr__(self):
     return f"PostLike('{self.post_id}','{self.user_id}')" 
 
 class PostTag(db.Model):
   post_id = db.Column(db.Integer,primary_key = True)
-  user_id = db.Column(db.Integer,nullable=False)
+  user_id = db.Column(db.Integer,primary_key = True)
 
   def __repr__(self):
     return f"PostTag('{self.post_id}','{self.user_id}')" 

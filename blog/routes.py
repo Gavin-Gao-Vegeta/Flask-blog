@@ -180,6 +180,7 @@ def like(post_id):
   else:
     flash("Please login first")
     return redirect(url_for('login'))
+  return render_template('401.html'), 401
 
 @app.route('/post/<int:post_id>/unlike',methods=['POST'])
 def unlike(post_id):
