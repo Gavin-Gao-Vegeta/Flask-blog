@@ -31,14 +31,13 @@ def home():
 
 @app.route("/allPosts/<int:sort>",methods=['GET'])
 def allPosts(sort):
-  print(sort)
   page = int(request.args.get('page', 1))
   if sort == 0:
-    paginate = Post.query.order_by(Post.date).paginate(page, 2, False)
+    paginate = Post.query.order_by(Post.date).paginate(page, 8, False)
   elif sort==1:
-    paginate = Post.query.order_by(Post.date.desc()).paginate(page, 2, False)
+    paginate = Post.query.order_by(Post.date.desc()).paginate(page, 8, False)
   else:
-    paginate = Post.query.order_by(Post.date).paginate(page, 2, False)
+    paginate = Post.query.order_by(Post.date).paginate(page, 8, False)
   posts = paginate.items
   postlist = postcount(posts)
   return render_template('allPosts.html',paginate=paginate,posts=postlist,sort=sort)
@@ -88,11 +87,13 @@ def newest():
 
 @app.route("/search")
 def search():
+  page = int(request.args.get('page', 1))
   s = request.args.get('query')
   search = "%{}%".format(s)
-  posts=Post.query.order_by(Post.date.desc()).filter(or_(Post.content.like(search),Post.title.like(search)))
+  paginate = Post.query.order_by(Post.date.desc()).filter(or_(Post.content.like(search),Post.title.like(search))).paginate(page, 8, False)
+  posts=paginate.items
   postlist = postcount(posts)
-  return render_template('home.html', posts=postlist)
+  return render_template('search.html',paginate=paginate, posts=postlist)
 
 @app.route("/add",methods=['GET','POST'])
 def add():

@@ -63,7 +63,7 @@
 {% else %}
 <span>Please <a style="margin: 0 5px;" href="{{ url_for('login',next=request.path) }}">Login</a> to like or tag</span>
 {% endif %}
-<h3 class="post-content">{{ post.content }}</h3>
+<p class="post-content"><br>{{ post.content }}</p>
 
 {% for comment in comments %}
 <div style="margin-bottom: 20px;">
