@@ -10,12 +10,13 @@ from urllib.parse import urlparse, urljoin
 @app.route("/home")
 def home():
   com = []
+  l = []
   discusses = Comment.query.order_by(Comment.date.desc()).limit(3).all()
   for discuss in discusses:
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  if post is None:
+  if len(post) != 0:
     c=[]
   else:
     c = [next(co for co in post if co.id ==id)for id in com]
@@ -25,7 +26,8 @@ def home():
   for postL in postLike:
     list1.append(postL.post_id)
   posts=Post.query.filter(Post.id.in_(list1)).all()
-  l = [next(s for s in posts if s.id == id) for id in list1]
+  if len(posts) != 0:
+    l = [next(s for s in posts if s.id == id) for id in list1]
   postlist = postcount(l)
   return render_template('home.html',posts=postlist,discusses=discusslist)
 
@@ -49,12 +51,13 @@ def about():
 @app.route("/popular")
 def popular():
   com = []
+  l = []
   discusses = Comment.query.order_by(Comment.date.desc()).limit(3).all()
   for discuss in discusses:
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  if post is None:
+  if len(post) != 0:
     c=[]
   else:
     c = [next(co for co in post if co.id ==id)for id in com]
@@ -63,8 +66,9 @@ def popular():
   postLike = db.session.query(PostLike.post_id,func.count(1)).group_by(PostLike.post_id).order_by(func.count(1).desc())
   for postL in postLike:
     list1.append(postL.post_id)
-  posts=Post.query.filter(Post.id.in_(list1)).all()
-  l = [next(s for s in posts if s.id == id) for id in list1]
+  posts=Post.query.filter(Post.id.in_(list1)).limit(10).all()
+  if len(posts) != 0:
+    l = [next(s for s in posts if s.id == id) for id in list1]
   postlist = postcount(l)
   return render_template('home.html',posts=postlist,discusses=discusslist)
 
@@ -76,7 +80,7 @@ def newest():
     com.append(discuss.post_id)
   com = list(set(com))
   post = Post.query.filter(Post.id.in_(com)).all()
-  if post is None:
+  if len(post) != 0:
     c=[]
   else:
     c = [next(co for co in post if co.id ==id)for id in com]
@@ -257,12 +261,15 @@ def is_safe_url(target):
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 def postcount(postlist):
-  for post in postlist:
-    likecount = PostLike.query.filter(PostLike.post_id==post.id).count()
-    commentcount = Comment.query.filter(Comment.post_id==post.id).count()
-    post.like = likecount
-    post.comment = commentcount
-  return postlist
+  if len(postlist) != 0:
+    for post in postlist:
+      likecount = PostLike.query.filter(PostLike.post_id==post.id).count()
+      commentcount = Comment.query.filter(Comment.post_id==post.id).count()
+      post.like = likecount
+      post.comment = commentcount
+    return postlist
+  else:
+    return []
 
 @app.errorhandler(401)
 def page_not_found(e):
