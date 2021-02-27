@@ -11,24 +11,23 @@ from urllib.parse import urlparse, urljoin
 def home():
   com = []
   l = []
-  discusses = Comment.query.order_by(Comment.date.desc()).limit(3).all()
+  c=[]
+  list1 = []
+  discusses = db.session.query(Comment.post_id,func.count(1)).group_by(Comment.post_id).order_by(func.count(1).desc()).limit(3).all()
   for discuss in discusses:
-    com.append(discuss.post_id)
-  com = list(set(com))
+    if discuss.post_id not in com:
+      com.append(discuss.post_id)
   post = Post.query.filter(Post.id.in_(com)).all()
   if len(post) != 0:
-    c=[]
-  else:
     c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
-  list1 = []
   postLike = db.session.query(PostLike.post_id,func.count(1)).group_by(PostLike.post_id).order_by(func.count(1).desc())
   for postL in postLike:
     list1.append(postL.post_id)
   posts=Post.query.filter(Post.id.in_(list1)).all()
   if len(posts) != 0:
     l = [next(s for s in posts if s.id == id) for id in list1]
-  postlist = postcount(l)
+  postlist = postcount(posts)
   return render_template('home.html',posts=postlist,discusses=discusslist)
 
 @app.route("/allPosts/<int:sort>",methods=['GET'])
@@ -52,17 +51,16 @@ def about():
 def popular():
   com = []
   l = []
-  discusses = Comment.query.order_by(Comment.date.desc()).limit(3).all()
+  c=[]
+  list1 = []
+  discusses = db.session.query(Comment.post_id,func.count(1)).group_by(Comment.post_id).order_by(func.count(1).desc()).limit(3).all()
   for discuss in discusses:
-    com.append(discuss.post_id)
-  com = list(set(com))
+    if discuss.post_id not in com:
+      com.append(discuss.post_id)
   post = Post.query.filter(Post.id.in_(com)).all()
   if len(post) != 0:
-    c=[]
-  else:
     c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
-  list1 = []
   postLike = db.session.query(PostLike.post_id,func.count(1)).group_by(PostLike.post_id).order_by(func.count(1).desc())
   for postL in postLike:
     list1.append(postL.post_id)
@@ -75,14 +73,13 @@ def popular():
 @app.route("/newest")
 def newest():
   com = []
-  discusses = Comment.query.order_by(Comment.date.desc()).limit(3).all()
+  c=[]
+  discusses = db.session.query(Comment.post_id,func.count(1)).group_by(Comment.post_id).order_by(func.count(1).desc()).limit(3).all()
   for discuss in discusses:
-    com.append(discuss.post_id)
-  com = list(set(com))
+    if discuss.post_id not in com:
+      com.append(discuss.post_id)
   post = Post.query.filter(Post.id.in_(com)).all()
   if len(post) != 0:
-    c=[]
-  else:
     c = [next(co for co in post if co.id ==id)for id in com]
   discusslist = postcount(c)
   posts=Post.query.order_by(Post.date.desc()).limit(10).all()
@@ -111,14 +108,13 @@ def add():
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
+  post_like = []
+  post_tag = []
   post = Post.query.get_or_404(post_id)
   comments = Comment.query.filter(Comment.post_id==post.id)
   if current_user.is_authenticated:
     post_like = PostLike.query.filter(and_(PostLike.user_id==current_user.id,PostLike.post_id==post_id)).all()
     post_tag = PostTag.query.filter(and_(PostTag.user_id==current_user.id,PostTag.post_id==post_id)).all()
-  else:
-    post_like = []
-    post_tag = []
   form = CommentForm()
   return render_template('post.html',post=post,comments=comments,postLike=post_like,tagLists=post_tag,postId=post_id,form=form,next=request.path)
 
@@ -154,7 +150,6 @@ def login():
   form = LoginForm()
   if form.validate_on_submit():
     user = User.query.filter_by(email=form.email.data).first()
-    print(user)
     if user is not None and user.verify_password(form.password.data):
       login_user(user)
       flash('Login successful!')
@@ -261,17 +256,15 @@ def is_safe_url(target):
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 def postcount(postlist):
-  if len(postlist) != 0:
-    for post in postlist:
+  if len(postlist) == 0:
+    return []
+  for post in postlist:
       likecount = PostLike.query.filter(PostLike.post_id==post.id).count()
       commentcount = Comment.query.filter(Comment.post_id==post.id).count()
       post.like = likecount
       post.comment = commentcount
-    return postlist
-  else:
-    return []
+  return postlist
 
 @app.errorhandler(401)
 def page_not_found(e):
-  print(e)
   return render_template('401.html'), 401
